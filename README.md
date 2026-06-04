@@ -24,7 +24,7 @@ On power-up, the firmware reads a `CONFIG.CFG` file from the root of the SD card
 
 **CONFIG.CFG format:**
 ```
-FILE=/GAMES/ABACUS.MDV
+FILE=/GAMES/CHESS.MDV
 ```
 
 - The path is relative to the SD card root and must start with `/`
