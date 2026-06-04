@@ -1,4 +1,4 @@
-# MicroPicoDrive — Enhanced UI Firmware
+# MicroPicoDrive — Extended(Enhanced) UI Firmware
 
 An extended firmware for the [MicroPicoDrive](https://github.com/gusmanb/micropicodrive) project by gusmanb, adding a richer file browser experience, auto-load configuration, and tactile feedback on top of the original MicroDrive emulation core.
 
