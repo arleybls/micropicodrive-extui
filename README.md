@@ -83,7 +83,7 @@ Examples:
 
 ### 5. Vibration Motor Feedback *(Optional)*
 
-If a [Keyes vibration motor module](https://www.amazon.com/s?k=keyes+vibration+motor+module) (or equivalent ERM coin motor breakout with onboard transistor driver) is connected to **GP28**, the motor runs during all SD card activity and stops 500 ms after the activity ends, giving tactile confirmation of reads and writes.
+If a [breakout vibration motor module](https://www.amazon.com/s?k=keyes+vibration+motor+module) (or equivalent ERM coin motor breakout with onboard transistor driver) is connected to **GP28**, the motor runs during all SD card activity and stops 500 ms after the activity ends, giving tactile confirmation of reads and writes.
 
 Motor activity is triggered by:
 - Directory listing (browsing)
