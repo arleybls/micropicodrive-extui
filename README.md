@@ -70,7 +70,7 @@ While browsing, **hold SELECT** on any image file for 500 ms. The asterisk (`*`)
 
 ### 4. Image Name on Ready Screen
 
-When a cartridge image is loaded successfully, the OLED shows the image filename instead of the generic "Ready" text. The extension is omitted, and names longer than 10 characters are truncated with `..`.
+When a cartridge image is loaded successfully, the OLED shows the image filename instead of the generic "Ready" text. The extension is omitted, and names longer than 10 characters are truncated.
 
 Examples:
 - `ABACUS` — short name, shown as-is
