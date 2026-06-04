@@ -6,7 +6,7 @@ An extended firmware for the [MicroPicoDrive](https://github.com/gusmanb/micropi
 
 ## Vision
 
-The original MicroPicoDrive project delivers excellent MicroDrive emulation for the Sinclair QL on a Raspberry Pi Pico. This firmware builds on that foundation without touching the real-time emulation core (Core 0) — all enhancements are purely software changes confined to the UI layer (Core 1), keeping the timing-critical MicroDrive behaviour intact and the hardware requirements identical to the original project.
+The original MicroPicoDrive project delivers excellent MicroDrive emulation for the Sinclair QL on a Raspberry Pi Pico. This firmware builds on that foundation without touching the real-time emulation core — all enhancements are purely software changes confined to the UI layer, keeping the timing-critical MicroDrive behaviour intact and the hardware requirements identical to the original project.
 
 The goal is a more polished day-to-day experience: pick up the device, have your favourite image load automatically, browse only the files that matter, tag a new autoload with a single long press, and feel confirmation through an optional vibration motor — all without needing a computer.
 
@@ -147,4 +147,3 @@ Uses the standard Raspberry Pi Pico SDK (1.5.1 or 2.x). Open in VS Code with the
 ## Credits
 
 MicroDrive emulation core by [gusmanb](https://github.com/gusmanb/micropicodrive).  
-UI enhancements built on top of the original firmware without modifying Core 0.
