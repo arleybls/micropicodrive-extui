@@ -74,7 +74,6 @@ When a cartridge image is loaded successfully, the OLED shows the image filename
 
 Examples:
 - `ABACUS` — short name, shown as-is
-- `QUILL` — shown as-is
 - `LONGFILENA..` — truncated
 
 <!-- PICTURE: Ready screen showing image filename -->
