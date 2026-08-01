@@ -112,6 +112,39 @@ The file browser uses a pixel-by-pixel vertical scroll animation when navigating
 
 ---
 
+### 7. Firmware Update from SD Card
+
+Drop a new firmware build (the plain `MicroPicoDrive.uf2` produced by the build — no renaming or repacking needed) into an `UPDATE` folder at the root of the SD card. On the next power-up the device validates the file and shows a confirmation screen:
+
+```
+FW update?
+cur v1.0.0
+new v1.0.1
+SEL=Y BK=N
+```
+
+| Action | Result |
+|---|---|
+| **SELECT** | Install and reboot into the new firmware |
+| **BACK** | Decline — this exact build is remembered and never offered again |
+| No press for 30 s | Nothing happens; the update is offered again on the next power-up |
+
+While installing, the screen shows a progress bar, then **"do not power off"** during the final flash write.
+
+Notes:
+
+- The file is fully verified (CRC-32, board family, integrity) **before** anything is written over the running firmware. Corrupt, truncated or wrong-board files are rejected harmlessly.
+- After a successful update the `.uf2` stays on the card and is ignored automatically — it matches the running firmware. You can delete it from a PC at leisure.
+- Downgrades are allowed; the prompt marks them as `old vX.Y.Z` instead of `new`.
+- The `UPDATE` folder is hidden from the file browser.
+- The check runs only at power-on, and never while a cartridge is mounted.
+
+> **Warning:** if power is lost during the short *"do not power off"* phase (a couple of seconds), the device will not boot and must be reflashed once over USB (hold BOOTSEL while plugging in, copy the `.uf2`). Losing power at any other point of the update is harmless.
+
+<!-- PICTURE: Update confirmation screen -->
+
+---
+
 ## Button Reference
 
 | Button | Short press | Long press (hold 500 ms) |
@@ -120,7 +153,7 @@ The file browser uses a pixel-by-pixel vertical scroll animation when navigating
 | **NEXT** | Scroll list down | Scroll list fast |
 | **SELECT** | Load selected file | Tag / untag file as autoload |
 | **SELECT** *(in Ready state)* | Save image to SD card | — |
-| **BACK** *(in Ready state)* | Eject and return to browser | — |
+| **BACK / NEXT** *(in Ready state)* | Eject and return to browser | — |
 
 > **BACK at the top of the root directory is ignored** — prevents accidentally leaving the browser.
 
@@ -134,6 +167,8 @@ The file browser uses a pixel-by-pixel vertical scroll animation when navigating
 4. Insert and power on
 
 To set an autoload image from the device: browse to the file and long-press SELECT until the `*` appears.
+
+To update the firmware: create an `UPDATE` folder at the root of the SD card and copy the new `MicroPicoDrive.uf2` into it (see [Firmware Update from SD Card](#7-firmware-update-from-sd-card)).
 
 ---
 

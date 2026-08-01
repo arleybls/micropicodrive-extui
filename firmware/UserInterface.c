@@ -12,6 +12,7 @@
 #include "animations.h"
 #include "images.h"
 #include "UserInterfaceExtension.h"
+#include "sd_update.h"
 
 #define LED_ON(LED) gpio_put(LED, true)
 #define LED_OFF(LED) gpio_put(LED, false)
@@ -642,9 +643,9 @@ bool load_mpd_cartridge()
 //Check if cancel was requested
 void check_cancel()
 {
-    if(BUTTON_PRESSED(PIN_BTN_BACK))
+    if(BUTTON_PRESSED(PIN_BTN_BACK) || BUTTON_PRESSED(PIN_BTN_NEXT))
     {
-        debounce_button(PIN_BTN_BACK);
+        debounce_button(BUTTON_PRESSED(PIN_BTN_BACK) ? PIN_BTN_BACK : PIN_BTN_NEXT);
         rewind_path();
         uiState = OPEN_FOLDER;
         cfInserted = NONE;
@@ -698,7 +699,10 @@ void process_user_interface()
             else
             {
                 if(init_screen())
+                {
+                    sd_update_check_at_boot();
                     uiState = WELCOME;
+                }
             }
             break;
 
@@ -787,6 +791,8 @@ void process_user_interface()
                         }
                         if(fno.fname[0] == 0) break;
                         if(fno.fattrib & AM_SYS) continue;
+                        if((fno.fattrib & AM_DIR) && currentPath[0] == 0 &&
+                           strcmp(fno.fname, "UPDATE") == 0) continue;
                         if(!(fno.fattrib & AM_DIR))
                         {
                             const char *ext = strrchr(fno.fname, '.');
@@ -1053,9 +1059,9 @@ void process_user_interface()
                 uiState = IDLE;
             else
             {
-                if(BUTTON_PRESSED(PIN_BTN_BACK))
+                if(BUTTON_PRESSED(PIN_BTN_BACK) || BUTTON_PRESSED(PIN_BTN_NEXT))
                 {
-                    debounce_button(PIN_BTN_BACK);
+                    debounce_button(BUTTON_PRESSED(PIN_BTN_BACK) ? PIN_BTN_BACK : PIN_BTN_NEXT);
                     rewind_path();
                     uiState = OPEN_FOLDER;
                     cfInserted = NONE;

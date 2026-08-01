@@ -42,7 +42,7 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 
 # add_executable(MicroPicoDrive MicroPicoDrive.c )
-FILE(GLOB CSources *.c)
+FILE(GLOB CSources CONFIGURE_DEPENDS *.c)
 ADD_EXECUTABLE(MicroPicoDrive ${CSources} ssd1306/ssd1306.c pff/diskio.c pff/pff.c)
 
 # Create C header file with the name <pio program>.pio.h
@@ -51,7 +51,18 @@ pico_generate_pio_header(${PROJECT_NAME}
 )
 
 pico_set_program_name(MicroPicoDrive "MicroPicoDrive")
-pico_set_program_version(MicroPicoDrive "0.1")
+
+# Firmware version: embedded in binary info (read back by the SD updater to
+# show "cur vs new" on the confirm screen) and exported as compile defines.
+set(MPD_FW_VERSION_MAJOR 1 CACHE STRING "fw major version")
+set(MPD_FW_VERSION_MINOR 0 CACHE STRING "fw minor version")
+set(MPD_FW_VERSION_PATCH 1 CACHE STRING "fw patch version")
+pico_set_program_version(MicroPicoDrive
+        "${MPD_FW_VERSION_MAJOR}.${MPD_FW_VERSION_MINOR}.${MPD_FW_VERSION_PATCH}")
+target_compile_definitions(MicroPicoDrive PRIVATE
+        MPD_FW_VERSION_MAJOR=${MPD_FW_VERSION_MAJOR}
+        MPD_FW_VERSION_MINOR=${MPD_FW_VERSION_MINOR}
+        MPD_FW_VERSION_PATCH=${MPD_FW_VERSION_PATCH})
 
 pico_enable_stdio_uart(MicroPicoDrive 0)
 pico_enable_stdio_usb(MicroPicoDrive 0)
@@ -74,7 +85,11 @@ target_link_libraries(MicroPicoDrive
         hardware_dma
         hardware_timer
         hardware_i2c
-        hardware_clocks)
+        hardware_clocks
+        hardware_flash
+        hardware_watchdog
+        pico_flash
+        pico_bootrom)
 
 pico_add_extra_outputs(MicroPicoDrive)
 
