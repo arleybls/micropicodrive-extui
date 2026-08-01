@@ -56,7 +56,7 @@ pico_set_program_name(MicroPicoDrive "MicroPicoDrive")
 # show "cur vs new" on the confirm screen) and exported as compile defines.
 set(MPD_FW_VERSION_MAJOR 1 CACHE STRING "fw major version")
 set(MPD_FW_VERSION_MINOR 0 CACHE STRING "fw minor version")
-set(MPD_FW_VERSION_PATCH 1 CACHE STRING "fw patch version")
+set(MPD_FW_VERSION_PATCH 2 CACHE STRING "fw patch version")
 pico_set_program_version(MicroPicoDrive
         "${MPD_FW_VERSION_MAJOR}.${MPD_FW_VERSION_MINOR}.${MPD_FW_VERSION_PATCH}")
 target_compile_definitions(MicroPicoDrive PRIVATE
