@@ -1194,6 +1194,8 @@ static void show_cart_ready(void) {
 
 // Reads CONFIG.CFG from SD root, populates configTaggedPath with the FILE= value.
 // Returns true if a non-empty FILE= value was found, false otherwise.
+// On success the motor is left running for the load that follows; every
+// failure path stops it here.
 static bool read_config_file(void) {
     char buf[CONFIG_FILE_SIZE + 1];
     UINT br = 0;
@@ -1202,17 +1204,23 @@ static bool read_config_file(void) {
 
     motor_on();
 
-    if (pf_open("CONFIG.CFG"))
+    if (pf_open("CONFIG.CFG")) {
+        motor_off();
         return false;
+    }
 
-    if (pf_read(buf, CONFIG_FILE_SIZE, &br))
+    if (pf_read(buf, CONFIG_FILE_SIZE, &br)) {
+        motor_off();
         return false;
+    }
 
     buf[br] = '\0';
 
     char *p = strstr(buf, "FILE=");
-    if (!p)
+    if (!p) {
+        motor_off();
         return false;
+    }
 
     p += 5;
 
@@ -1223,8 +1231,10 @@ static bool read_config_file(void) {
         end--;
 
     int len = (int)(end - p);
-    if (len <= 0)
+    if (len <= 0) {
+        motor_off();
         return false;
+    }
 
     int copy = (len < PATH_BUFFER_SIZE - 1) ? len : PATH_BUFFER_SIZE - 1;
     strncpy(configTaggedPath, p, copy);
@@ -1238,17 +1248,23 @@ static bool try_config_autoload(void) {
     if (!read_config_file())
         return false;
 
+    // read_config_file() left the motor running for the load below, so the
+    // paths that bail out before it has to stop it themselves.
     const char *dot = strrchr(configTaggedPath, '.');
-    if (!dot)
+    if (!dot) {
+        motor_off();
         return false;
+    }
 
     CARTRIDGE_FORMAT fmt;
     if (strcmp(dot, ".MDV") == 0 || strcmp(dot, ".mdv") == 0)
         fmt = MDV;
     else if (strcmp(dot, ".MPD") == 0 || strcmp(dot, ".mpd") == 0)
         fmt = MPD;
-    else
+    else {
+        motor_off();
         return false;
+    }
 
     cfInserted = fmt;
     strncpy(currentPath, configTaggedPath, PATH_BUFFER_SIZE - 1);
