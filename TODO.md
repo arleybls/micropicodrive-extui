@@ -271,3 +271,62 @@ the two tools above are reached by a 3 s long press instead. The gesture must
 stay distinguishable from the existing 500 ms long-press autoload tag on SELECT
 (`UserInterfaceExtension.h:9`) — both would live on the same button, so the tag
 action needs to fire on release before the 3 s threshold, not at 500 ms.
+
+---
+
+## Licensing
+
+Decide this **before** copying code, not after — it constrains which items can be
+lifted from NG directly.
+
+### Where things stand
+
+| Project | Licence | Why |
+|---|---|---|
+| gusmanb/micropicodrive (upstream) | MIT | original project |
+| This repo | *none — no LICENSE file* | never added |
+| NG | GPL-3.0 | forced by its vendored ST7735 driver |
+
+NG is GPL-3.0 because its display driver traces back through
+[bablokb/pico-st7735](https://github.com/bablokb/pico-st7735) to
+gavinlyonsrepo's work, which is GPL-3.0. Copyleft on a linked component makes
+the whole combined work GPL-3.0. NG records the chain in its
+`src/lib-st7735/LICENSE`.
+
+MIT code may be incorporated into a GPL-3.0 work with the original notice
+retained, which is how NG absorbed the upstream emulation core.
+
+### What that means per item
+
+**Copying NG's own code makes this repo a GPL-3.0 derivative** and a `LICENSE`
+file becomes mandatory. That covers everything NG authored under `src/ui/`,
+`src/update/`, `src/drive/` and `src/storage/` — i.e. most of the Bugs / safety,
+Data-loss guards and Browser polish items, and the flashloader.
+
+Note the ST7735 driver itself is never coming across (no colour panel here), so
+the *reason* NG is GPL does not apply to this firmware. The obligation would come
+from NG's own source files, not from the display driver.
+
+**The full-FatFs migration is licence-neutral.** Its vendored components are
+separately licensed and impose no copyleft:
+
+| Component | Licence |
+|---|---|
+| carlk3 no-OS-FatFS-SD | Apache 2.0 |
+| FatFs (ChaN) | own permissive licence, see its `LICENSE.txt` |
+
+Only NG's thin glue around them (`storage/sd_hw_config.c`, the `sd_fs_mount`
+wrapper) is NG-authored — and both are short enough to reimplement from the
+datasheet and the library's own examples if staying non-copyleft matters.
+
+### Options
+
+1. **Adopt GPL-3.0.** Add a `LICENSE`, port freely from NG. Simplest, and
+   consistent with NG being the sibling project.
+2. **Stay permissive.** Take the FatFs migration and reimplement the NG-derived
+   logic independently. Most of the small fixes are a few lines each and follow
+   from the bug rather than from NG's phrasing — but "reimplemented, not copied"
+   has to be true in fact, not just claimed.
+
+Either way, **add a `LICENSE` file**. An unlicensed public repo grants no rights
+to anyone, including people who want to contribute back.
