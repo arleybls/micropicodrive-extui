@@ -178,6 +178,48 @@ Uses the standard Raspberry Pi Pico SDK (1.5.1 or 2.x). Open in VS Code with the
 
 ---
 
+## Roadmap / TODO
+
+Candidates identified by comparing this firmware against [micropicodrive-ng-firmware](https://github.com/arleybls/micropicodrive-ng-firmware). Line references are to this repo unless prefixed with `NG:`.
+
+### Bugs / safety (small diffs, do these first)
+
+- [ ] **`event_push` blocks inside IRQs.** `EventMachine.c:13` uses `queue_add_blocking`; all producers are interrupt handlers (`MicroDriveControl.c:401,417,697,714` plus the DMA IRQs). A full queue hangs in interrupt context. Fix: `queue_try_add` + sticky `overflow` flag (NG: `src/drive/EventMachine.c:14-18`).
+- [ ] **Raise queue depths** from 16/8/8 (`MicroDriveControl.c:1111-1112`, `UserInterface.c:1342`) to NG's 32/16/16.
+- [ ] **"Event lost" state.** Surface the overflow flag: with a cartridge mounted the RAM image is untrusted, so force a screen where eject is the only live key and save is unreachable (NG: `src/ui/UserInterface.c:2016-2028`).
+- [ ] **Eject fires mid-transfer.** `check_cancel()` (`UserInterface.c:644-657`, called at `:1357`) ejects while the QL is actively using the drive. Delete it and freeze buttons while `mdInUse` (NG: `:2032-2037`).
+- [ ] **Bogus DMA abort.** `MicroDriveControl.c:821-828` passes a transfer *count* to `dma_channel_abort()` as a channel index, aborting an arbitrary channel on every header read. Dead debug code — delete.
+- [ ] **`event_clear` races.** `EventMachine.c:28-32` writes `queue.wptr`/`rptr` directly, bypassing the SDK spinlock. Drain with `queue_try_remove`. Currently unused, but it's a landmine.
+
+### Data-loss guards
+
+- [ ] **Dirty flag + eject confirm.** Track QL writes and ask before ejecting a modified cartridge. Today one BACK/NEXT press in `CARTRIDGE_READY` (`UserInterface.c:1062-1071`) discards everything silently. (NG: `:630`, `:1561`, `:1659`, `:1587-1596`)
+- [ ] **Save-failure messaging.** "Save failed / Retry save!" and keep the dirty flag, instead of the current bare "Save error" (`:1101-1105`).
+- [ ] **Card-swap save guard** — refuse SAVE if the card changed since load (NG: `:1614-1631`). Blocked on full FatFs (Petit FatFs has no `f_getlabel`).
+
+### Browser polish
+
+- [ ] **Empty-root infinite loop.** `:858-870` cycles Empty dir → remount → Empty dir forever. Add a persistent no-files screen (NG: `:1359-1362`).
+- [ ] **Truncation marker.** Both firmwares cap listings at 64 entries; append a non-selectable `...` row when entries were dropped (NG: `:1049-1056`, `:1303-1322`).
+- [ ] **Hidden-entry filtering.** Skip `AM_HID|AM_SYS` and all dot-prefixed names (NG: `:1288-1289`) instead of the hard-coded `UPDATE` special case (`:793-795`). Rename the update folder to `.update` to match.
+- [ ] **Case-insensitive extension filter** — `strcasecmp` (NG: `:1294`) vs the current `strcmp` (`:798-801`).
+
+### Larger projects
+
+- [ ] **Petit FatFs → full FatFs + carlk3 no-OS-FatFS.** Unblocks: creating `CONFIG.CFG` on demand (no more pre-created 306-byte file), deleting the declined `.uf2` (drops the flash decline record in `flash_layout.h:36-41`), long filenames, volume serial, and any future save-as. Wiring is identical to NG (`pff/pffconf.h:62-67` matches NG `src/storage/sd_hw_config.c`), and RAM fits — about 175 KB used of 264 KB, while NG's Lite build runs full FatFs at 217 KB.
+- [ ] **Flashloader-based update.** Replace the in-place rewrite (`sd_update.c:273-294`, the "do not power off" window) with stage → commit header → reboot → idempotent first-stage apply (NG: `src/flashloader/flashloader.c`). Costs a second binary, a custom linker script, and a one-time BOOTSEL migration for existing users.
+  - [ ] Cheap subset, no flashloader needed: stale-stage invalidation after an external reflash (NG: `sd_update_lite.c:232-239`) and ignoring out-of-app-range UF2 blocks (NG: `:116-123`).
+
+### Nice to have
+
+- [ ] **System Info screen** (NG: `src/ui/sys_info.c`) — version, chip, clock, temperature, RAM/flash use. There is currently no way to see the running firmware version.
+- [ ] **SD Check** (NG: `src/storage/sd_check.c`) — card info plus a write/read/verify pass.
+- [ ] **SD error-burst detector** — treat N consecutive failures as a surprise card removal (NG: `:63`, `:290-291`).
+- [ ] **Persistent settings in flash** (NG: `:1940-1989`) — the pattern to reuse if any user-facing option is added.
+- [ ] Both tools above are reached by a **3 s long press** rather than a dedicated button — this board has three buttons where NG has a fourth (K4). The gesture must stay distinct from the existing 500 ms long-press tag on SELECT.
+
+---
+
 ## Credits
 
 MicroDrive emulation core by [gusmanb](https://github.com/gusmanb/micropicodrive).  
