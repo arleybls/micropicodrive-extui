@@ -180,7 +180,7 @@ Uses the standard Raspberry Pi Pico SDK (1.5.1 or 2.x). Open in VS Code with the
 
 ## Roadmap / TODO
 
-Candidates identified by comparing this firmware against [micropicodrive-ng-firmware](https://github.com/arleybls/micropicodrive-ng-firmware).
+Candidates identified by comparing this firmware against [micropicodrive-ng-firmware](https://github.com/arleybls/micropicodrive-ng-firmware). See [TODO.md](TODO.md) for the technical detail behind each item.
 
 ### Bugs / safety
 
